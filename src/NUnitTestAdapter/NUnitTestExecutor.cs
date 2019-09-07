@@ -28,7 +28,9 @@ using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using NUnit.Core;
-// #define LAUNCHDEBUGGER
+#if LAUNCHDEBUGGER
+using System.Diagnostics;
+#endif
 
 namespace NUnit.VisualStudio.TestAdapter
 {
@@ -110,7 +112,7 @@ namespace NUnit.VisualStudio.TestAdapter
 #if LAUNCHDEBUGGER
             Debugger.Launch();
 #endif
-
+           
             TestLog.Initialize(frameworkHandle);
             Initialize(runContext);
             if (RegistryFailure)

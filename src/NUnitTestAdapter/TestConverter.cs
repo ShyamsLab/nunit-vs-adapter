@@ -38,6 +38,7 @@ namespace NUnit.VisualStudio.TestAdapter
     {
         private readonly TestLogger _logger;
         private readonly Dictionary<string, TestCase> _vsTestCaseMap;
+        private readonly Dictionary<string, TestCase> _vsTestPlainCaseMap;
         private readonly string _sourceAssembly;
         private NavigationDataProvider _navigationDataProvider;
         private bool _collectSourceInformation;
@@ -73,11 +74,28 @@ namespace NUnit.VisualStudio.TestAdapter
             // Return cached value if we have one
             if (_vsTestCaseMap.ContainsKey(test.TestName.UniqueName))
                 return _vsTestCaseMap[test.TestName.UniqueName];
-           
+
             // Convert to VS TestCase and cache the result
             var testCase = MakeTestCaseFromNUnitTest(test);
             _vsTestCaseMap.Add(test.TestName.UniqueName, testCase);
-            return testCase;             
+            return testCase;
+        }
+
+
+        public TestCase ConvertToVSTestCase(ITest test)
+        {
+            ConvertTestCase(test);
+            if (test.IsSuite)
+                throw new ArgumentException("The argument must be a test case", "test");
+
+            // Return cached value if we have one
+            if (_vsTestCaseMap.ContainsKey(Regex.Replace(test.TestName.UniqueName, @" ?\(.*?\)", string.Empty)))
+                return _vsTestPlainCaseMap[Regex.Replace(test.TestName.UniqueName, @" ?\(.*?\)", string.Empty)];
+
+            // Convert to VS TestCase and cache the result
+            var testCase = MakeTestCaseFromNUnitTest(test);
+            _vsTestPlainCaseMap.Add(Regex.Replace(test.TestName.UniqueName, @" ?\(.*?\)", string.Empty), testCase);
+            return testCase;
         }
 
         public TestCase GetCachedTestCase(string key)
@@ -135,12 +153,11 @@ namespace NUnit.VisualStudio.TestAdapter
         private TestCase MakeTestCaseFromNUnitTest(ITest nunitTest)
         {
             //var testCase = MakeTestCaseFromTestName(nunitTest.TestName);
-            var testCase = new TestCase(
-                                     nunitTest.TestName.FullName,
+            var testCase = new TestCase(Regex.Replace(nunitTest.TestName.FullName, @" ?\(.*?\)", string.Empty),
                                      new Uri(NUnitTestExecutor.ExecutorUri),
                                      this._sourceAssembly)
             {
-                DisplayName = nunitTest.TestName.Name,
+                DisplayName = Regex.Replace(nunitTest.TestName.Name, @" ?\(.*?\)", string.Empty),
                 CodeFilePath = null,
                 LineNumber = 0
             };

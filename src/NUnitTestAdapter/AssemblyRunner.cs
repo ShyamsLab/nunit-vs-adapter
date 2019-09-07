@@ -80,9 +80,9 @@ namespace NUnit.VisualStudio.TestAdapter
             this.tfsFilter = tfsFilter;
         }
 
-        private static SimpleNameFilter MakeTestFilter(IEnumerable<TestCase> ptestCases)
+        private static MethodNameFilter MakeTestFilter(IEnumerable<TestCase> ptestCases)
         {
-            var filter = new SimpleNameFilter();
+            var filter = new MethodNameFilter();
             foreach (TestCase testCase in ptestCases)
             {
                 filter.Add(testCase.FullyQualifiedName);

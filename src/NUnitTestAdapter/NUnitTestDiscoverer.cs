@@ -56,7 +56,9 @@ namespace NUnit.VisualStudio.TestAdapter
                 TestLog.SendErrorMessage(ErrorMsg);
             }
             Info("discovering tests", "started");
-
+#if LAUNCHDEBUGGER
+            Debugger.Launch();
+#endif
             // Ensure any channels registered by other adapters are unregistered
             CleanUpRegisteredChannels();
 
